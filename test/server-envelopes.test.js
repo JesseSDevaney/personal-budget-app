@@ -298,4 +298,141 @@ describe("/envelopes routes", function () {
       assert.strictEqual(response.status, 404);
     });
   });
+
+  describe("PUT /envelopes/:from/:to", function () {
+    it("transfers the given amount and returns the envelopes as json", async function () {
+      setTotalBudget(200);
+      const fromName = "groceries";
+      const toName = "shopping";
+      const transferAmount = 30;
+      addEnvelope({
+        name: fromName,
+        amount: 40,
+      });
+      addEnvelope({
+        name: toName,
+        amount: 50,
+      });
+
+      const body = { amount: transferAmount };
+      const response = await request(app)
+        .put(`/envelopes/${fromName}/${toName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 200);
+      assert.deepStrictEqual(response.body.from, {
+        name: fromName,
+        amount: 10,
+      });
+      assert.deepStrictEqual(response.body.to, { name: toName, amount: 80 });
+    });
+
+    it("expect 400 to be sent because of insufficient envelope balance", async function () {
+      setTotalBudget(200);
+      const fromName = "groceries";
+      const toName = "shopping";
+      const transferAmount = 70;
+      addEnvelope({
+        name: fromName,
+        amount: 40,
+      });
+      addEnvelope({
+        name: toName,
+        amount: 50,
+      });
+
+      const body = { amount: transferAmount };
+      const response = await request(app)
+        .put(`/envelopes/${fromName}/${toName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("expect 400 to be sent because of negative amount transfer", async function () {
+      setTotalBudget(200);
+      const fromName = "groceries";
+      const toName = "shopping";
+      const transferAmount = -50;
+      addEnvelope({
+        name: fromName,
+        amount: 40,
+      });
+      addEnvelope({
+        name: toName,
+        amount: 50,
+      });
+
+      const body = { amount: transferAmount };
+      const response = await request(app)
+        .put(`/envelopes/${fromName}/${toName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("expect 400 to be sent because of non-numeric amount", async function () {
+      setTotalBudget(200);
+      const fromName = "groceries";
+      const toName = "shopping";
+      const transferAmount = "I will send this much";
+      addEnvelope({
+        name: fromName,
+        amount: 40,
+      });
+      addEnvelope({
+        name: toName,
+        amount: 50,
+      });
+
+      const body = { amount: transferAmount };
+      const response = await request(app)
+        .put(`/envelopes/${fromName}/${toName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("expect 404 to be sent because of non-existent from destination", async function () {
+      setTotalBudget(200);
+      const fromName = "groceries";
+      const toName = "shopping";
+      const transferAmount = "I will send this much";
+      addEnvelope({
+        name: toName,
+        amount: 50,
+      });
+
+      const body = { amount: transferAmount };
+      const response = await request(app)
+        .put(`/envelopes/${fromName}/${toName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("expect 404 to be sent because of non-existent to destination", async function () {
+      setTotalBudget(200);
+      const fromName = "groceries";
+      const toName = "shopping";
+      const transferAmount = "I will send this much";
+      addEnvelope({
+        name: fromName,
+        amount: 40,
+      });
+
+      const body = { amount: transferAmount };
+      const response = await request(app)
+        .put(`/envelopes/${fromName}/${toName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 404);
+    });
+  });
 });

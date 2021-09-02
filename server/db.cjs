@@ -109,6 +109,29 @@ const setTotalBudget = (newBudget) => {
   totalBudget = newBudget;
 };
 
+const transferEnvelopeAmount = (from, to, amount) => {
+  if (!amount || typeof amount !== "number") {
+    throw new TypeError("Amount must be a number");
+  }
+
+  if (amount < 0) {
+    throw new RangeError("Amount must be a non-negative number");
+  }
+
+  if (from.amount < amount) {
+    throw new RangeError(
+      `Requested amount transfer is greater than ${from.name}'s balance`
+    );
+  }
+
+  from.amount -= amount;
+  to.amount += amount;
+  return {
+    from,
+    to,
+  };
+};
+
 const updateEnvelope = (name, envelopeUpdate) => {
   const currentEnvelope = getEnvelope(name);
   const envelopeCheck = {
@@ -141,5 +164,6 @@ module.exports = {
   setTotalBudget,
   resetEnvelopes,
   isValidEnvelope,
+  transferEnvelopeAmount,
   updateEnvelope,
 };

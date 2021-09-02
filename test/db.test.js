@@ -7,6 +7,7 @@ const {
   getTotalBudget,
   setTotalBudget,
   resetEnvelopes,
+  transferEnvelopeAmount,
   updateEnvelope,
 } = require("../server/db.cjs");
 
@@ -221,6 +222,98 @@ describe("Envelope Database", function () {
       const envelopeExists = getEnvelope(envelopeName);
 
       assert.notOk(envelopeExists);
+    });
+  });
+
+  describe("transferEnvelopeAmount(name)", function () {
+    it("expect envelope amount to be transferred and envelopes to be updated", function () {
+      setTotalBudget(100);
+      addEnvelope({
+        name: "groceries",
+        amount: 40,
+      });
+      addEnvelope({
+        name: "shopping",
+        amount: 50,
+      });
+      const expectedGroceryAfterTransfer = {
+        name: "groceries",
+        amount: 10,
+      };
+      const expectedShoppingAfterTransfer = {
+        name: "shopping",
+        amount: 80,
+      };
+
+      const groceryEnvelope = getEnvelope("groceries");
+      const shoppingEnvelope = getEnvelope("shopping");
+
+      transferEnvelopeAmount(groceryEnvelope, shoppingEnvelope, 30);
+
+      assert.deepStrictEqual(groceryEnvelope, expectedGroceryAfterTransfer);
+      assert.deepStrictEqual(shoppingEnvelope, expectedShoppingAfterTransfer);
+    });
+
+    it("expect RangeError to be thrown because of insufficient envelope balance", function () {
+      setTotalBudget(100);
+      addEnvelope({
+        name: "groceries",
+        amount: 40,
+      });
+      addEnvelope({
+        name: "shopping",
+        amount: 50,
+      });
+      const groceryEnvelope = getEnvelope("groceries");
+      const shoppingEnvelope = getEnvelope("shopping");
+
+      assert.throws(
+        () => transferEnvelopeAmount(groceryEnvelope, shoppingEnvelope, 60),
+        RangeError
+      );
+    });
+
+    it("expect RangeError to be thrown because of negative amount transfer", function () {
+      setTotalBudget(100);
+      addEnvelope({
+        name: "groceries",
+        amount: 40,
+      });
+      addEnvelope({
+        name: "shopping",
+        amount: 50,
+      });
+      const groceryEnvelope = getEnvelope("groceries");
+      const shoppingEnvelope = getEnvelope("shopping");
+
+      assert.throws(
+        () => transferEnvelopeAmount(groceryEnvelope, shoppingEnvelope, -10),
+        RangeError
+      );
+    });
+
+    it("expect TypeError to be thrown because of non-numeric amount", function () {
+      setTotalBudget(100);
+      addEnvelope({
+        name: "groceries",
+        amount: 40,
+      });
+      addEnvelope({
+        name: "shopping",
+        amount: 50,
+      });
+      const groceryEnvelope = getEnvelope("groceries");
+      const shoppingEnvelope = getEnvelope("shopping");
+
+      assert.throws(
+        () =>
+          transferEnvelopeAmount(
+            groceryEnvelope,
+            shoppingEnvelope,
+            "this much"
+          ),
+        TypeError
+      );
     });
   });
 });

@@ -1,4 +1,5 @@
 const express = require("express");
+const { transferEnvelopeAmount } = require("../db.cjs");
 const {
   addEnvelope,
   deleteEnvelope,
@@ -52,6 +53,41 @@ envelopesRouter.put("/:name", (req, res) => {
 envelopesRouter.delete("/:name", (req, res) => {
   deleteEnvelope(req.envelope.name);
   res.status(204).send();
+});
+
+envelopesRouter.param("from", (req, res, next, id) => {
+  const fromEnvelope = getEnvelope(id);
+
+  if (!fromEnvelope) {
+    return res.status(404).send(`Envelope with name ${id} does not exist`);
+  }
+
+  req.fromEnvelope = fromEnvelope;
+  next();
+});
+
+envelopesRouter.param("to", (req, res, next, id) => {
+  const toEnvelope = getEnvelope(id);
+
+  if (!toEnvelope) {
+    return res.status(404).send(`Envelope with name ${id} does not exist`);
+  }
+
+  req.toEnvelope = toEnvelope;
+  next();
+});
+
+envelopesRouter.put("/:from/:to", (req, res) => {
+  try {
+    const envelopes = transferEnvelopeAmount(
+      req.fromEnvelope,
+      req.toEnvelope,
+      req.body.amount
+    );
+    res.status(200).send(envelopes);
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
 });
 
 module.exports = envelopesRouter;
