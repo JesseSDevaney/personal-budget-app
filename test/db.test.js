@@ -15,7 +15,7 @@ describe("Envelope Database", function () {
     setTotalBudget(0);
   });
 
-  describe("addEnvelope()", function () {
+  describe("addEnvelope(envelope)", function () {
     it("when amount budgeted + envelope amount less than totalBudget, expect envelope to be added", function () {
       setTotalBudget(50);
 
@@ -71,7 +71,7 @@ describe("Envelope Database", function () {
     });
   });
 
-  describe("setBudget()", function () {
+  describe("setBudget(amount)", function () {
     it("expect setBudget(5) to set budget to 5", function () {
       const amount = 5;
       const expected = 5;
@@ -117,7 +117,7 @@ describe("Envelope Database", function () {
     });
   });
 
-  describe("updateEnvelope()", function () {
+  describe("updateEnvelope(name, envelopeUpdates)", function () {
     it("when new amount budgeted less than totalBudget, expect envelope to be updated", function () {
       const envelopeName = "groceries";
       setTotalBudget(100);
@@ -206,4 +206,5 @@ describe("Envelope Database", function () {
       );
     });
   });
+
 });
