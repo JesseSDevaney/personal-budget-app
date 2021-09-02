@@ -42,4 +42,86 @@ describe("/envelopes routes", function () {
     });
   });
 
+  describe("POST /envelopes", function () {
+    it("responds with json and the added envelope", async function () {
+      setTotalBudget(100);
+      const envelope = {
+        name: "groceries",
+        amount: 50,
+      };
+      const body = { envelope };
+
+      const response = await request(app)
+        .post("/envelopes")
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 201);
+      assert.deepStrictEqual(response.body, body);
+    });
+
+    it("responds with 400 error because budgeted amount would exceed total budget if added", async function () {
+      setTotalBudget(100);
+      const envelope = {
+        name: "groceries",
+        amount: 125,
+      };
+      const body = { envelope };
+
+      const response = await request(app)
+        .post("/envelopes")
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("responds with 400 error because name property is not a string", async function () {
+      setTotalBudget(100);
+      const envelope = {
+        name: 56,
+        amount: 125,
+      };
+      const body = { envelope };
+
+      const response = await request(app)
+        .post("/envelopes")
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("responds with 400 error because amount property is not a number", async function () {
+      setTotalBudget(100);
+      const envelope = {
+        name: "groceries",
+        amount: "hi",
+      };
+      const body = { envelope };
+
+      const response = await request(app)
+        .post("/envelopes")
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("responds with 400 error because amount property is negative", async function () {
+      setTotalBudget(100);
+      const envelope = {
+        name: "groceries",
+        amount: -50,
+      };
+      const body = { envelope };
+
+      const response = await request(app)
+        .post("/envelopes")
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+  });
 });
