@@ -6,6 +6,7 @@ const {
   getTotalBudget,
   setTotalBudget,
   resetEnvelopes,
+  updateEnvelope,
 } = require("../server/db.cjs");
 
 describe("Envelope Database", function () {
@@ -113,6 +114,96 @@ describe("Envelope Database", function () {
       const amount = 25;
 
       assert.throws(() => setTotalBudget(amount), RangeError);
+    });
+  });
+
+  describe("updateEnvelope()", function () {
+    it("when new amount budgeted less than totalBudget, expect envelope to be updated", function () {
+      const envelopeName = "groceries";
+      setTotalBudget(100);
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: 90,
+      };
+
+      const result = updateEnvelope(envelopeName, envelopeUpdate);
+
+      assert.deepStrictEqual(result, envelopeUpdate);
+    });
+
+    it("when new amount budgeted less than totalBudget, expect envelope to be updated with new name", function () {
+      const envelopeName = "groceries";
+      setTotalBudget(100);
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+      const envelopeUpdate = {
+        name: "shopping",
+        amount: 90,
+      };
+
+      const result = updateEnvelope(envelopeName, envelopeUpdate);
+
+      assert.deepStrictEqual(result, envelopeUpdate);
+    });
+
+    it("when new amount budgeted greater than totalBudget, expect error to be thrown", function () {
+      const envelopeName = "groceries";
+      setTotalBudget(100);
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: 150,
+      };
+
+      assert.throws(
+        () => updateEnvelope(envelopeName, envelopeUpdate),
+        RangeError
+      );
+    });
+
+    it("when envelope update amount has a non-numeric value, expect TypeError to be thrown", function () {
+      const envelopeName = "groceries";
+      setTotalBudget(100);
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: "hi",
+      };
+
+      assert.throws(
+        () => updateEnvelope(envelopeName, envelopeUpdate),
+        TypeError
+      );
+    });
+
+    it("when envelope update string has a non-string value, expect TypeError to be thrown", function () {
+      const envelopeName = "groceries";
+      setTotalBudget(100);
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+      const envelopeUpdate = {
+        name: 566,
+        amount: 45,
+      };
+
+      assert.throws(
+        () => updateEnvelope(envelopeName, envelopeUpdate),
+        TypeError
+      );
     });
   });
 });

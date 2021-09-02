@@ -146,4 +146,133 @@ describe("/envelopes routes", function () {
       assert.strictEqual(response.status, 404);
     });
   });
+
+  describe("PUT /envelopes/:name", function () {
+    it("updates the given envelope amount and responds with json", async function () {
+      setTotalBudget(200);
+      const envelopeName = "groceries";
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: 75,
+      };
+
+      const body = { envelope: envelopeUpdate };
+      const response = await request(app)
+        .put(`/envelopes/${envelopeName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 200);
+      assert.deepStrictEqual(response.body, body);
+    });
+
+    it("updates the given envelope amount and name and responds with json", async function () {
+      setTotalBudget(200);
+      const envelopeName = "groceries";
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      const envelopeUpdate = {
+        name: "shopping",
+        amount: 75,
+      };
+
+      const body = { envelope: envelopeUpdate };
+      const response = await request(app)
+        .put(`/envelopes/${envelopeName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 200);
+      assert.deepStrictEqual(response.body, body);
+    });
+
+    it("returns a 404 error because envelope to update does not exist", async function () {
+      const envelopeUpdate = {
+        name: "shopping",
+        amount: 75,
+      };
+
+      const body = { envelope: envelopeUpdate };
+      const response = await request(app)
+        .put("/envelopes/shopping")
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 404);
+    });
+
+    it("does not update and returns a 400 error because budgeted amount would be greater than total budget", async function () {
+      setTotalBudget(200);
+      const envelopeName = "groceries";
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: 250,
+      };
+
+      const body = { envelope: envelopeUpdate };
+      const response = await request(app)
+        .put(`/envelopes/${envelopeName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("does not update and returns a 400 error because update amount is not a number", async function () {
+      setTotalBudget(200);
+      const envelopeName = "groceries";
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: "hi",
+      };
+
+      const body = { envelope: envelopeUpdate };
+      const response = await request(app)
+        .put(`/envelopes/${envelopeName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+
+    it("does not update and returns a 400 error because update amount is a negative number", async function () {
+      setTotalBudget(200);
+      const envelopeName = "groceries";
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      const envelopeUpdate = {
+        name: envelopeName,
+        amount: -5,
+      };
+
+      const body = { envelope: envelopeUpdate };
+      const response = await request(app)
+        .put(`/envelopes/${envelopeName}`)
+        .set("Content-type", "application/json")
+        .send(body);
+
+      assert.strictEqual(response.status, 400);
+    });
+  });
 });

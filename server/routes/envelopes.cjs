@@ -1,5 +1,10 @@
 const express = require("express");
-const { addEnvelope, getAllEnvelopes, getEnvelope } = require("../db.cjs");
+const {
+  addEnvelope,
+  getAllEnvelopes,
+  getEnvelope,
+  updateEnvelope,
+} = require("../db.cjs");
 const envelopesRouter = express.Router();
 
 envelopesRouter.get("/", (req, res) => {
@@ -31,6 +36,16 @@ envelopesRouter.param("name", (req, res, next, id) => {
 
 envelopesRouter.get("/:name", (req, res) => {
   res.status(200).send({ envelope: req.envelope });
+});
+
+envelopesRouter.put("/:name", (req, res) => {
+  try {
+    const envelopeUpdate = req.body.envelope;
+    const updatedEnvelope = updateEnvelope(req.envelope.name, envelopeUpdate);
+    res.status(200).send({ envelope: updatedEnvelope });
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
 });
 
 module.exports = envelopesRouter;

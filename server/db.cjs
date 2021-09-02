@@ -1,7 +1,7 @@
 let totalBudget = 0;
 const envelopes = [];
 
-const isValidEnvelope = (envelope) => {
+const isValidEnvelopeProperties = (envelope) => {
   if (envelope.name === "" || typeof envelope.name !== "string") {
     throw new TypeError("name must be a non-empty string");
   }
@@ -12,6 +12,14 @@ const isValidEnvelope = (envelope) => {
     envelope.amount < 0
   ) {
     throw new TypeError("amount must be a non-negative number");
+  }
+
+  return true;
+};
+
+const isValidEnvelope = (envelope) => {
+  if (!isValidEnvelopeProperties(envelope)) {
+    return false;
   }
 
   const amountAvailable = getAmountAvailable();
@@ -91,6 +99,28 @@ const setTotalBudget = (newBudget) => {
   totalBudget = newBudget;
 };
 
+const updateEnvelope = (name, envelopeUpdate) => {
+  const currentEnvelope = getEnvelope(name);
+  const envelopeCheck = {
+    name: envelopeUpdate.name,
+    amount: envelopeUpdate.amount - currentEnvelope.amount,
+  };
+
+  if (!isValidEnvelopeProperties(envelopeCheck)) {
+    throw new Error("Envelope does not have valid properties");
+  }
+
+  if (envelopeCheck.amount > getAmountAvailable()) {
+    throw new RangeError(
+      "New budget amount put budgeted amount over total budget"
+    );
+  }
+
+  currentEnvelope.name = envelopeUpdate.name;
+  currentEnvelope.amount = envelopeUpdate.amount;
+  return currentEnvelope;
+};
+
 module.exports = {
   addEnvelope,
   getAllEnvelopes,
@@ -99,4 +129,6 @@ module.exports = {
   getTotalBudget,
   setTotalBudget,
   resetEnvelopes,
+  isValidEnvelope,
+  updateEnvelope,
 };
