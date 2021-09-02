@@ -124,4 +124,26 @@ describe("/envelopes routes", function () {
       assert.strictEqual(response.status, 400);
     });
   });
+
+  describe("GET /envelopes/:name", function () {
+    it("responds with json and the specified envelope", async function () {
+      setTotalBudget(100);
+      const envelope = {
+        name: "groceries",
+        amount: 55,
+      };
+      addEnvelope(envelope);
+
+      const response = await request(app).get(`/envelopes/${envelope.name}`);
+
+      assert.strictEqual(response.status, 200);
+      assert.deepStrictEqual(response.body.envelope, envelope);
+    });
+
+    it("responds with 404 error since the resource does not exist", async function () {
+      const response = await request(app).get("/envelopes/shopping");
+
+      assert.strictEqual(response.status, 404);
+    });
+  });
 });

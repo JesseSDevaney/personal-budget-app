@@ -18,4 +18,19 @@ envelopesRouter.post("/", (req, res) => {
   }
 });
 
+envelopesRouter.param("name", (req, res, next, id) => {
+  const envelope = getEnvelope(id);
+
+  if (!envelope) {
+    return res.status(404).send(`Envelope with name ${id} does not exist`);
+  }
+
+  req.envelope = envelope;
+  next();
+});
+
+envelopesRouter.get("/:name", (req, res) => {
+  res.status(200).send({ envelope: req.envelope });
+});
+
 module.exports = envelopesRouter;
