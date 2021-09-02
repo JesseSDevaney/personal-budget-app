@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const errorhandler = require("errorhandler");
 const budgetRouter = require("./routes/budget.cjs");
+const envelopesRouter = require("./routes/envelopes.cjs");
 
 const PORT = process.env.PORT || 3000;
 
@@ -16,6 +17,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/budget", budgetRouter);
+
+app.use("/envelopes", envelopesRouter);
 
 if (process.env.NODE_ENV === "development") {
   app.use(errorhandler());
