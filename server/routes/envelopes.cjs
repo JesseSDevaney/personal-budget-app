@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   addEnvelope,
+  deleteEnvelope,
   getAllEnvelopes,
   getEnvelope,
   updateEnvelope,
@@ -46,6 +47,11 @@ envelopesRouter.put("/:name", (req, res) => {
   } catch (err) {
     res.status(400).send(err.message);
   }
+});
+
+envelopesRouter.delete("/:name", (req, res) => {
+  deleteEnvelope(req.envelope.name);
+  res.status(204).send();
 });
 
 module.exports = envelopesRouter;

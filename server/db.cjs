@@ -49,6 +49,16 @@ const addEnvelope = (newEnvelope) => {
   }
 };
 
+const deleteEnvelope = (name) => {
+  const envelopeIndex = envelopes.findIndex(
+    (envelope) => envelope.name === name
+  );
+
+  if (envelopeIndex !== -1) {
+    envelopes.splice(envelopeIndex, 1);
+  }
+};
+
 const getAllEnvelopes = () => {
   return envelopes;
 };
@@ -123,6 +133,7 @@ const updateEnvelope = (name, envelopeUpdate) => {
 
 module.exports = {
   addEnvelope,
+  deleteEnvelope,
   getAllEnvelopes,
   getAmountAvailable,
   getEnvelope,

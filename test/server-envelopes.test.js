@@ -275,4 +275,27 @@ describe("/envelopes routes", function () {
       assert.strictEqual(response.status, 400);
     });
   });
+
+  describe("DELETE /envelopes/:name", function () {
+    it("deletes the given envelope since it exists and returns 204", async function () {
+      setTotalBudget(200);
+      const envelopeName = "groceries";
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      const response = await request(app).delete(`/envelopes/${envelopeName}`);
+
+      assert.strictEqual(response.status, 204);
+    });
+
+    it("returns 404 since envelope does not exist", async function () {
+      const envelopeName = "groceries";
+
+      const response = await request(app).delete(`/envelopes/${envelopeName}`);
+
+      assert.strictEqual(response.status, 404);
+    });
+  });
 });

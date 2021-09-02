@@ -1,6 +1,7 @@
 const assert = require("chai").assert;
 const {
   addEnvelope,
+  deleteEnvelope,
   getAmountAvailable,
   getEnvelope,
   getTotalBudget,
@@ -207,4 +208,19 @@ describe("Envelope Database", function () {
     });
   });
 
+  describe("deleteEnvelope(name)", function () {
+    it("expect envelope to be deleted", function () {
+      const envelopeName = "groceries";
+      setTotalBudget(100);
+      addEnvelope({
+        name: envelopeName,
+        amount: 50,
+      });
+
+      deleteEnvelope(envelopeName);
+      const envelopeExists = getEnvelope(envelopeName);
+
+      assert.notOk(envelopeExists);
+    });
+  });
 });
